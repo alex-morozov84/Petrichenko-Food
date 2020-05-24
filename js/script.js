@@ -187,14 +187,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Функция получения данных с сервера (для формирования карточек)
     const getData = async (url) => {
-        const res = await fetch(url)
+        const res = await fetch(url);
 
         if (!res.ok) {
             throw new Error(`Could not fetch ${url}, status: ${res.status}`);
         }
 
         return await res.json();
-    }
+    };
     
     // Формирование карточек из данных с сервера (при помощи сформированнго заранее класса (который выше))
     // getData('http://localhost:3000/menu')
@@ -209,8 +209,8 @@ window.addEventListener('DOMContentLoaded', () => {
     .then(data => {
         data.data.forEach(({img, altimg, title, descr, price}) => { /* - здесь произвели деструктуризацию объекта (для сокращения) */
             new createCard(img, altimg, title, descr, price, '.menu__field .container').render();
-        })
-    })
+        });
+    });
 
     // Метод формирования карточек "на лету", без использования классов
     // getData('http://localhost:3000/menu')
@@ -265,9 +265,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 'Content-type': 'application/json'
             },
             body: data
-        })
+        });
         return await res.json();
-    }
+    };
 
     function bindPostData(form) {
         form.addEventListener('submit', (e) => {
@@ -295,8 +295,8 @@ window.addEventListener('DOMContentLoaded', () => {
             
             const object = {};
             formData.forEach(function(value, key) {
-                object[key] = value
-            })
+                object[key] = value;
+            });
 
             const json = JSON.stringify(Object.fromEntries(formData.entries()));
             
@@ -309,7 +309,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 showThanksModal(message.failure);
             }).finally(() => {
                 form.reset();
-            })
+            });
 
             // Это тоже от первого случая (при помощи XMLHttpRequest())
             // request.send(formData);
@@ -354,62 +354,99 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     fetch('http://localhost:3000/menu')
-        .then(data => data.json())
-        .then(res => console.log(res));
-
-
+        .then(data => data.json());
 
     // Slider
-    const slide = document.querySelectorAll('.offer__slide'),
+    const slider = new Promise(function(resolve) {
+        // Загрузка слайдов из debugger.json и формирование верстки
+        class Slides {
+            constructor(link, parentSelector) {
+                this.link = link;
+                this.parent = document.querySelector(parentSelector);
+            }
+            render() {
+                let newSlide = document.createElement('div');
+                newSlide.classList.add('offer__slide');
+                this.parent.append(newSlide);
+                newSlide.innerHTML = `
+                    <img src="${this.link}" alt="pepper">
+                `;
+            }
+        }
+    
+        const getSlide =async (url) => {
+            const res = await fetch(url);
+                
+            if (!res.ok) {
+                throw new Error(`Какая-то ошибка, статус: ${res.status}`);
+            }    
+            
+            return await res.json();
+        };
+    
+        getSlide('http://localhost:3000/slider')
+            .then (data => {
+                data.forEach(item => {
+                new Slides(item.img, '.offer__slider-wrapper').render();
+                });
+                resolve();
+            });
+        
+    });
+    slider.then(() => {
+        // реализация самого слайдера
+        const slide = document.querySelectorAll('.offer__slide'),
         prev = document.querySelector('.offer__slider-prev'),
         next = document.querySelector('.offer__slider-next'),
-        currentSlide = document.querySelector('#current'),
+        currentSlideNumber = document.querySelector('#current'),
         totalSlide = document.querySelector('#total');
 
-    let i = 0;  
-    showSlide(0);
-
-    function changeSlide(n) {
-        if (n < slide.length && n >= 0) {
-            showSlide(n);
-        } else if (n >= slide.length) {
-            i = 0;
-            showSlide(i);
-        } else {
-            i = slide.length - 1;
-            showSlide(i);
-        }
-    }
-
-    function showSlide(i) {
-        slide.forEach(item => {
-            item.classList.add('hide');
-            item.classList.remove('show');
-        });
-        slide[i].classList.remove('hide');
-        slide[i].classList.add('show');
-        showNumber(i);
-    }
-
-    function showNumber(i) {
-        if (slide.length < 10) {
-            totalSlide.textContent = `0${slide.length}`;
-            currentSlide.textContent = `0${i+1}`;
-        } else if (slide.length >= 10 && i >= 9 ) {
-            totalSlide.textContent = `${slide.length}`;
-            currentSlide.textContent = `${i+1}`;
-        } else {
-            totalSlide.textContent = `${slide.length}`;
-            currentSlide.textContent = `0${i+1}`;
-        }
+        let currentSlide = 0;
+        showSlide(currentSlide);
         
-    }
+        function showSlide(n) {
+            if (n >= 0 && n < slide.length) {
+                currentSlide = n;
+            } else if (n >= slide.length) {
+                currentSlide = 0;
+            } else {
+                currentSlide = slide.length - 1;
+            }
+            slide.forEach(item => {
+                item.classList.remove('show');
+                item.classList.add('hide');
+            });
+            slide[currentSlide].classList.remove('hide');
+            slide[currentSlide].classList.add('show');
 
-    next.addEventListener('click', () => {
-        changeSlide(i += 1);
+            showNumber(currentSlide);
+        }
+
+        function changeSlide(i) {
+            currentSlide = currentSlide + i;
+            showSlide(currentSlide);
+        }
+
+        function showNumber(currentSlide) {
+            if (slide.length < 10) {
+                totalSlide.textContent = `0${slide.length}`;
+            } else {
+                totalSlide.textContent = slide.length;
+            }
+            if (currentSlide < 9) {
+                currentSlideNumber.textContent = `0${currentSlide + 1}`;
+            } else {
+                currentSlideNumber.textContent = currentSlide + 1;
+            }
+        }
+
+        prev.addEventListener('click', () => {
+            changeSlide(-1);
+        });
+
+        next.addEventListener('click', () => {
+            changeSlide(1);
+        });
     });
 
-    prev.addEventListener('click', () => {
-        changeSlide(i -= 1);
-    })
 });

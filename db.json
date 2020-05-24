@@ -22,6 +22,41 @@
       "price": 21
     }
   ],
+  "slider": [
+    {
+      "img": "img/slider/food-12.jpg"
+    },
+    {
+      "img": "img/slider/olive-oil.jpg"
+    },
+    {
+      "img": "img/slider/paprika.jpg"
+    },
+    {
+      "img": "img/slider/pepper.jpg"
+    },
+    {
+      "img": "img/slider/1.jpg"
+    },
+    {
+      "img": "img/slider/2.jpg"
+    },
+    {
+      "img": "img/slider/3.jpg"
+    },
+    {
+      "img": "img/slider/4.jpg"
+    },
+    {
+      "img": "img/slider/5.jpg"
+    },
+    {
+      "img": "img/slider/6.jpg"
+    },
+    {
+      "img": "img/slider/7.jpg"
+    }
+  ],
   "requests": [
     {
       "name": "dndsndt",
@@ -32,6 +67,16 @@
       "name": "Алексндр",
       "phone": "+79119730566",
       "id": 2
+    },
+    {
+      "name": "Александр",
+      "phone": "+79119730566",
+      "id": 3
+    },
+    {
+      "name": "апрарап",
+      "phone": "5456",
+      "id": 4
     }
   ]
 }
